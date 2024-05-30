@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Vectorization Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        input[type="text"], button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-wrap: wrap;
+        }
+        pre{
+            width: 100%;
+            text-wrap: pretty;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/universal-sentence-encoder"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Text Vectorization with Universal Sentence Encoder</h1>
+        <input type="text" id="userInput" placeholder="Enter text">
+        <button   id="btn"onclick="vectorizeText()">loading model</button>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        // Load the Universal Sentence Encoder model
+        let model;
+        async function loadModel() {
+            model = await use.load();
+            console.log("Model loaded");
+            document.getElementById("btn").innerHTML="Search"
+        }
+
+        async function vectorizeText() {
+            const userInput = document.getElementById('userInput').value;
+            const resultDiv = document.getElementById('result')
+
+            if (!model) {
+                resultDiv.innerHTML = `<p style="color: red;">Error: Model not loaded yet</p>`;
+                return;
+            }
+resultDiv.innerHTML="loading results"
+            // Encode the text
+            const embeddings = await model.embed([userInput]);
+            const vector = embeddings.arraySync()[0];
+            const url = 'https://in03-1da0c931077a4fe.api.gcp-us-west1.zillizcloud.com/v1/vector/search';
+const options = {
+  method: 'POST',
+  headers: {
+    Authorization: 'Bearer ca7e4f29bd9256d48f761ed59658c3078c85b0fdbf15ff0dcaa7e47643cd0f961faa7a74e48cfb99e824bd5b3fa89acd02fb2084',
+    Accept: 'application/json',
+    'Content-Type': 'application/json'
+  },
+  body: '{"collectionName":"movies","outputFields":["metadata"],"vector":['+vector+"]}"};
+
+try {
+  const response = await fetch(url, options);
+  const data = await response.json();
+  console.log(data);
+var movies= data.data.map((e)=>JSON.parse(e.metadata))
+var i=0;
+movies.forEach(element => {
+    i++;
+    if(i>6){
+    
+    }else{
+    document.getElementById("result").innerHTML+=
+    `<div class="pre" >  
+        <h1> ${element.movie}</h1>
+        <p> ${element.desc}</p>
+        
+        
+      </div>  `
+    }
+});
+} catch (error) {
+  console.error(error);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            // Display the vector
+               }
+
+        // Load the model when the page is loaded
+        window.onload = loadModel;
+    </script>
+</body>
+</html>
