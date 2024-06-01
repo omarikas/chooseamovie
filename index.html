@@ -58,17 +58,17 @@ try {
   const response = await fetch("https://stately-praline-229e69.netlify.app/.netlify/functions/hello-world?message="+userInput);
   const data = await response.json();
   console.log(data);
-var movies= data.data.map((e)=>JSON.parse(e.metadata))
+var movies= data
 var i=0;
 movies.forEach(element => {
     i++;
-    if(i>6){
+    if(element.similarity==0){
     
     }else{
     document.getElementById("result").innerHTML+=
     `<div class="pre" >  
-        <h1> ${element.movie}</h1>
-        <p> ${element.desc}</p>
+        <h1> ${element.movie.movie}</h1>
+        <p> ${element.movie.descc}</p>
         
         
       </div>  `
